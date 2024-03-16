@@ -1,17 +1,36 @@
-import { Injectable } from '@angular/core';
+import { Injectable,NgZone } from '@angular/core';
 import { Observable } from 'rxjs';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { UserModel } from '../../models/user.model';
 import { environment } from '../../../../../environments/environment';
-import { AuthModel } from '../../models/auth.model';
-
+import { AuthModel, FbUser } from '../../models/auth.model';
 const API_USERS_URL = `${environment.apiUrl}/auth`;
+
+// https://medium.com/@sanjaytoge/firebase-authentication-with-angular-2235783956f7
 
 @Injectable({
   providedIn: 'root',
 })
 export class AuthHTTPService {
-  constructor(private http: HttpClient) {}
+  constructor(
+    private http: HttpClient,
+    public ngZone: NgZone,
+    ) {
+
+      /* Saving user data in localstorage when 
+    logged in and setting up null when logged out */
+    /*
+    this.fbAuth.authState.subscribe((user) => {
+      if (user) {
+        this.userData = user;
+        localStorage.setItem('fbuser', JSON.stringify(this.userData));
+        JSON.parse(localStorage.getItem('fbuser')!);
+      } else {
+        localStorage.setItem('fbuser', 'null');
+        JSON.parse(localStorage.getItem('fbuser')!);
+      }
+    });*/
+    }
 
   // public methods
   login(email: string, password: string): Observable<any> {

@@ -5,6 +5,11 @@ import { first } from 'rxjs/operators';
 import { UserModel } from '../../models/user.model';
 import { AuthService } from '../../services/auth.service';
 import { ActivatedRoute, Router } from '@angular/router';
+import { AngularFireAuth } from '@angular/fire/compat/auth';
+import { FirebaseUISignInFailure, FirebaseUISignInSuccessWithAuthResult } from 'firebaseui-angular/lib/firebaseui-angular-library.helper';
+import { TwitterAuthProvider } from 'firebase/auth';
+import { environment } from 'src/environments/environment';
+import { AuthModel, FbUser } from '../../models/auth.model';
 
 @Component({
   selector: 'app-login',
@@ -21,7 +26,9 @@ export class LoginComponent implements OnInit, OnDestroy {
   hasError: boolean;
   returnUrl: string;
   isLoading$: Observable<boolean>;
+  userData: any;
 
+  private authLocalStorageToken = `${environment.appVersion}-${environment.USERDATA_KEY}`;  
   // private fields
   private unsubscribe: Subscription[] = []; // Read more: => https://brianflove.com/2016/12/11/anguar-2-unsubscribe-observables/
 
@@ -29,13 +36,31 @@ export class LoginComponent implements OnInit, OnDestroy {
     private fb: FormBuilder,
     private authService: AuthService,
     private route: ActivatedRoute,
-    private router: Router
+    private router: Router,
+    public fbAuth: AngularFireAuth
   ) {
     this.isLoading$ = this.authService.isLoading$;
     // redirect to home if already logged in
     if (this.authService.currentUserValue) {
       this.router.navigate(['/']);
     }
+    console.log(this.fbAuth.currentUser)
+    this.fbAuth.authState.subscribe((user) => {
+      if (user) {
+        localStorage.setItem('fire_user', JSON.stringify(user));
+        this.userData = JSON.parse(localStorage.getItem('fire_user')!);
+        const auth = new AuthModel()
+        auth.authToken = this.userData.stsTokenManager.accessToken
+        auth.expiresIn = this.userData.stsTokenManager.expirationTime
+        auth.refreshToken = this.userData.stsTokenManager.refreshToken
+        localStorage.setItem(this.authLocalStorageToken, JSON.stringify(auth));
+        console.log("===============",auth)
+
+      } else {
+        localStorage.setItem('fire_user', 'null');
+        JSON.parse(localStorage.getItem('fire_user')!);
+      }
+    });
   }
 
   ngOnInit(): void {
@@ -43,6 +68,7 @@ export class LoginComponent implements OnInit, OnDestroy {
     // get return url from route parameters or default to '/'
     this.returnUrl =
       this.route.snapshot.queryParams['returnUrl'.toString()] || '/';
+      
   }
 
   // convenience getter for easy access to form fields
@@ -90,4 +116,36 @@ export class LoginComponent implements OnInit, OnDestroy {
   ngOnDestroy() {
     this.unsubscribe.forEach((sb) => sb.unsubscribe());
   }
+
+  successCallback(data: FirebaseUISignInSuccessWithAuthResult) {
+    console.log('successCallback', data);
+    this.fbAuth.authState.subscribe((user) => {
+      if (user) {
+        this.router.navigate([this.returnUrl]);
+      }
+    });
+  }
+
+  errorCallback(data: FirebaseUISignInFailure) {
+    alert('Failed to login')
+    console.warn('errorCallback', data);
+  }
+
+  /*
+  // Sign in with Twitter
+  TwitterAuth() {
+    return this.AuthLogin(new TwitterAuthProvider());
+  }
+  // Auth logic to run auth providers
+  AuthLogin(provider:TwitterAuthProvider) {
+    return this.fbAuth
+      .signInWithPopup(provider)
+      .then((result) => {
+        console.log('You have been successfully logged in!');
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  }
+  */
 }

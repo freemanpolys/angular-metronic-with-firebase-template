@@ -6,7 +6,7 @@ export const environment = {
   production: false,
   appVersion: 'v8.1.8',
   USERDATA_KEY: 'authf649fc9a5f55',
-  isMockEnabled: true,
+  isMockEnabled: false,
   apiUrl: 'api',
   appThemeName: 'Metronic',
   appPurchaseUrl: 'https://1.envato.market/EA4JP',
@@ -159,6 +159,15 @@ export const environment = {
       thumbnail: './assets/media/demos/demo20.png',
     },
   },
+  firebaseConfig: {
+    apiKey: "AIzaSyDc-Tw3xM__zCnwG1nZDmYsudj33--bFm0",
+    authDomain: "tweetxz.firebaseapp.com",
+    projectId: "tweetxz",
+    storageBucket: "tweetxz.appspot.com",
+    messagingSenderId: "966472023945",
+    appId: "1:966472023945:web:1821de9efb86abb6cdeb58",
+    measurementId: "G-PPY6M2P9Q4"
+  }
 };
 
 /*

@@ -16,6 +16,7 @@ import { SweetAlert2Module } from '@sweetalert2/ngx-sweetalert2';
 import { FakeAPIService } from './_fake/fake-api.service';
 // #fake-end#
 
+
 function appInitializer(authService: AuthService) {
   return () => {
     return new Promise((resolve) => {

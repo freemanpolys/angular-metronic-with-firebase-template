@@ -10,20 +10,6 @@ export class AuthModel {
   }
 }
 
-export interface FbUser {
-  uid: string
-  email: string
-  emailVerified: boolean
-  displayName: string
-  isAnonymous: boolean
-  photoURL: string
-  providerData: ProviderDaum[]
-  stsTokenManager: StsTokenManager
-  createdAt: string
-  lastLoginAt: string
-  apiKey: string
-  appName: string
-}
 
 export interface ProviderDaum {
   providerId: string

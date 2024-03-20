@@ -3,7 +3,7 @@ import { AddressModel } from './address.model';
 import { SocialNetworksModel } from './social-networks.model';
 
 export class UserModel extends AuthModel {
-  id: number;
+  id: string;
   username: string;
   password: string;
   fullname: string;

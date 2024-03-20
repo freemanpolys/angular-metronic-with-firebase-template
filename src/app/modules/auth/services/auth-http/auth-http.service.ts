@@ -1,10 +1,13 @@
-import { Injectable,NgZone } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Injectable } from '@angular/core';
+import { Observable, of } from 'rxjs';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { UserModel } from '../../models/user.model';
 import { environment } from '../../../../../environments/environment';
-import { AuthModel, FbUser } from '../../models/auth.model';
+import { AuthModel} from '../../models/auth.model';
 const API_USERS_URL = `${environment.apiUrl}/auth`;
+import { AngularFireAuth } from '@angular/fire/compat/auth';
+
+
 
 // https://medium.com/@sanjaytoge/firebase-authentication-with-angular-2235783956f7
 
@@ -12,25 +15,11 @@ const API_USERS_URL = `${environment.apiUrl}/auth`;
   providedIn: 'root',
 })
 export class AuthHTTPService {
+  private authLocalStorageToken = `${environment.appVersion}-${environment.USERDATA_KEY}`;  
   constructor(
     private http: HttpClient,
-    public ngZone: NgZone,
-    ) {
-
-      /* Saving user data in localstorage when 
-    logged in and setting up null when logged out */
-    /*
-    this.fbAuth.authState.subscribe((user) => {
-      if (user) {
-        this.userData = user;
-        localStorage.setItem('fbuser', JSON.stringify(this.userData));
-        JSON.parse(localStorage.getItem('fbuser')!);
-      } else {
-        localStorage.setItem('fbuser', 'null');
-        JSON.parse(localStorage.getItem('fbuser')!);
-      }
-    });*/
-    }
+    public fbAuth: AngularFireAuth,
+    ) {}
 
   // public methods
   login(email: string, password: string): Observable<any> {
@@ -52,12 +41,31 @@ export class AuthHTTPService {
     });
   }
 
-  getUserByToken(token: string): Observable<UserModel> {
+  getUserByToken(token: string): Observable<UserModel| undefined> {
     const httpHeaders = new HttpHeaders({
       Authorization: `Bearer ${token}`,
     });
-    return this.http.get<UserModel>(`${API_USERS_URL}/me`, {
-      headers: httpHeaders,
-    });
+    // Send request to backend to get UserModel
+
+    /*
+    const localUser = localStorage.getItem(this.authLocalStorageToken)
+    if(localUser == null) {
+        return of(undefined)
+    } else {
+      return of(JSON.parse(localUser) as UserModel);
+    }*/
+    const userData = JSON.parse(localStorage.getItem('fire_user')!);
+    const userModel = new UserModel()
+    userModel.email = userData.email
+    userModel.authToken = userData.stsTokenManager.accessToken
+    userModel.fullname = userData.displayName
+    userModel.pic = userData.photoURL
+    userModel.expiresIn = userData.stsTokenManager.expirationTime
+    userModel.id = userData.email
+    return of(userModel)
+  }
+
+  logout(): Promise<void> {
+    return this.fbAuth.signOut()
   }
 }

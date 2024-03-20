@@ -7,9 +7,8 @@ import { AuthService } from '../../services/auth.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AngularFireAuth } from '@angular/fire/compat/auth';
 import { FirebaseUISignInFailure, FirebaseUISignInSuccessWithAuthResult } from 'firebaseui-angular/lib/firebaseui-angular-library.helper';
-import { TwitterAuthProvider } from 'firebase/auth';
 import { environment } from 'src/environments/environment';
-import { AuthModel, FbUser } from '../../models/auth.model';
+import { AuthModel} from '../../models/auth.model';
 
 @Component({
   selector: 'app-login',
@@ -44,7 +43,6 @@ export class LoginComponent implements OnInit, OnDestroy {
     if (this.authService.currentUserValue) {
       this.router.navigate(['/']);
     }
-    console.log(this.fbAuth.currentUser)
     this.fbAuth.authState.subscribe((user) => {
       if (user) {
         localStorage.setItem('fire_user', JSON.stringify(user));
@@ -54,8 +52,15 @@ export class LoginComponent implements OnInit, OnDestroy {
         auth.expiresIn = this.userData.stsTokenManager.expirationTime
         auth.refreshToken = this.userData.stsTokenManager.refreshToken
         localStorage.setItem(this.authLocalStorageToken, JSON.stringify(auth));
-        console.log("===============",auth)
-
+        
+        const userModel = new UserModel()
+        userModel.email = this.userData.email
+        userModel.authToken = this.userData.stsTokenManager.accessToken
+        userModel.fullname = this.userData.displayName
+        userModel.pic = this.userData.photoURL
+        userModel.expiresIn = this.userData.stsTokenManager.expirationTime
+        userModel.id = this.userData.email
+        this.authService.currentUserValue = userModel 
       } else {
         localStorage.setItem('fire_user', 'null');
         JSON.parse(localStorage.getItem('fire_user')!);
@@ -64,7 +69,7 @@ export class LoginComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.initForm();
+    //this.initForm();
     // get return url from route parameters or default to '/'
     this.returnUrl =
       this.route.snapshot.queryParams['returnUrl'.toString()] || '/';
@@ -75,7 +80,7 @@ export class LoginComponent implements OnInit, OnDestroy {
   get f() {
     return this.loginForm.controls;
   }
-
+/*
   initForm() {
     this.loginForm = this.fb.group({
       email: [
@@ -96,7 +101,7 @@ export class LoginComponent implements OnInit, OnDestroy {
         ]),
       ],
     });
-  }
+  } 
 
   submit() {
     this.hasError = false;
@@ -111,7 +116,7 @@ export class LoginComponent implements OnInit, OnDestroy {
         }
       });
     this.unsubscribe.push(loginSubscr);
-  }
+  }*/
 
   ngOnDestroy() {
     this.unsubscribe.forEach((sb) => sb.unsubscribe());
@@ -120,7 +125,7 @@ export class LoginComponent implements OnInit, OnDestroy {
   successCallback(data: FirebaseUISignInSuccessWithAuthResult) {
     console.log('successCallback', data);
     this.fbAuth.authState.subscribe((user) => {
-      if (user) {
+      if(user) {
         this.router.navigate([this.returnUrl]);
       }
     });

@@ -7,8 +7,8 @@ import { AuthService } from '../../services/auth.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AngularFireAuth } from '@angular/fire/compat/auth';
 import { FirebaseUISignInFailure, FirebaseUISignInSuccessWithAuthResult } from 'firebaseui-angular/lib/firebaseui-angular-library.helper';
+import { AuthModel } from '../../models/auth.model';
 import { environment } from 'src/environments/environment';
-import { AuthModel} from '../../models/auth.model';
 
 @Component({
   selector: 'app-login',
@@ -26,8 +26,8 @@ export class LoginComponent implements OnInit, OnDestroy {
   returnUrl: string;
   isLoading$: Observable<boolean>;
   userData: any;
-
   private authLocalStorageToken = `${environment.appVersion}-${environment.USERDATA_KEY}`;  
+
   // private fields
   private unsubscribe: Subscription[] = []; // Read more: => https://brianflove.com/2016/12/11/anguar-2-unsubscribe-observables/
 
@@ -45,8 +45,9 @@ export class LoginComponent implements OnInit, OnDestroy {
     }
     this.fbAuth.authState.subscribe((user) => {
       if (user) {
-        localStorage.setItem('fire_user', JSON.stringify(user));
-        this.userData = JSON.parse(localStorage.getItem('fire_user')!);
+        const sUser = JSON.stringify(user)
+        localStorage.setItem('fire_user', sUser);
+        this.userData = JSON.parse(sUser);
         const auth = new AuthModel()
         auth.authToken = this.userData.stsTokenManager.accessToken
         auth.expiresIn = this.userData.stsTokenManager.expirationTime
@@ -69,18 +70,17 @@ export class LoginComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    //this.initForm();
+    this.initForm();
     // get return url from route parameters or default to '/'
     this.returnUrl =
       this.route.snapshot.queryParams['returnUrl'.toString()] || '/';
-      
   }
 
   // convenience getter for easy access to form fields
   get f() {
     return this.loginForm.controls;
   }
-/*
+
   initForm() {
     this.loginForm = this.fb.group({
       email: [
@@ -101,7 +101,7 @@ export class LoginComponent implements OnInit, OnDestroy {
         ]),
       ],
     });
-  } 
+  }
 
   submit() {
     this.hasError = false;
@@ -116,12 +116,11 @@ export class LoginComponent implements OnInit, OnDestroy {
         }
       });
     this.unsubscribe.push(loginSubscr);
-  }*/
+  }
 
   ngOnDestroy() {
     this.unsubscribe.forEach((sb) => sb.unsubscribe());
   }
-
   successCallback(data: FirebaseUISignInSuccessWithAuthResult) {
     console.log('successCallback', data);
     this.fbAuth.authState.subscribe((user) => {
@@ -135,22 +134,4 @@ export class LoginComponent implements OnInit, OnDestroy {
     alert('Failed to login')
     console.warn('errorCallback', data);
   }
-
-  /*
-  // Sign in with Twitter
-  TwitterAuth() {
-    return this.AuthLogin(new TwitterAuthProvider());
-  }
-  // Auth logic to run auth providers
-  AuthLogin(provider:TwitterAuthProvider) {
-    return this.fbAuth
-      .signInWithPopup(provider)
-      .then((result) => {
-        console.log('You have been successfully logged in!');
-      })
-      .catch((error) => {
-        console.log(error);
-      });
-  }
-  */
 }

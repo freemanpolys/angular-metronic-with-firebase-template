@@ -167,7 +167,8 @@ export const environment = {
     messagingSenderId: "966472023945",
     appId: "1:966472023945:web:1821de9efb86abb6cdeb58",
     measurementId: "G-PPY6M2P9Q4"
-  }
+  },
+  backendUrl: "https://httpbin.org"
 };
 
 /*

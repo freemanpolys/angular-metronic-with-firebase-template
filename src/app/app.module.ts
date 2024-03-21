@@ -16,6 +16,8 @@ import { SweetAlert2Module } from '@sweetalert2/ngx-sweetalert2';
 import { FakeAPIService } from './_fake/fake-api.service';
 // #fake-end#
 import { FIREBASE_OPTIONS } from '@angular/fire/compat';
+import { provideHttpClient, withInterceptors } from '@angular/common/http';
+import { bearerTokenInterceptor } from './modules/auth/services/bearer-token.interceptor';
 
 
 function appInitializer(authService: AuthService) {
@@ -55,7 +57,8 @@ function appInitializer(authService: AuthService) {
       multi: true,
       deps: [AuthService],
     },
-    { provide: FIREBASE_OPTIONS, useValue: environment.firebaseConfig }
+    { provide: FIREBASE_OPTIONS, useValue: environment.firebaseConfig },
+    provideHttpClient(withInterceptors([bearerTokenInterceptor]))
   ],
   bootstrap: [AppComponent],
 })
